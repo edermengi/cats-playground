@@ -49,7 +49,7 @@ object FuncSet extends App {
       else Cons(e, this)
 
     override infix def ++(other: FSet[A]): FSet[A] = other match {
-      case Empty() => this
+      case Empty()          => this
       case Cons(head, tail) => tail ++ (this + head)
     }
 

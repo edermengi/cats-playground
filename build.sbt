@@ -7,5 +7,13 @@ lazy val root = (project in file("."))
     name := "cats-playground",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "2.13.0"
+    ),
+    addCommandAlias(
+      "fmtCheck",
+      "; scalafmtSbtCheck ; scalafmtCheckAll"
+    ),
+    addCommandAlias(
+      "fmt",
+      "; scalafmtSbt ; scalafmtAll"
     )
   )

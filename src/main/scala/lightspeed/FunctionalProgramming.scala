@@ -2,7 +2,6 @@ package lightspeed
 
 object FunctionalProgramming extends App {
 
-
   val incrementer = new Function1[Int, Int] {
     override def apply(v1: Int): Int = v1 + 1
   }
@@ -15,9 +14,7 @@ object FunctionalProgramming extends App {
 
   // higher-order functions: take functions as arguments or/and return functions as results
 
-  val allPairs = List(1, 2, 3).flatMap(number =>
-    List('a', 'b', 'c').map(letter => s"$number-$letter")
-  )
+  val allPairs = List(1, 2, 3).flatMap(number => List('a', 'b', 'c').map(letter => s"$number-$letter"))
   println(allPairs)
 
   println(stringConcatenator("A", "B"))

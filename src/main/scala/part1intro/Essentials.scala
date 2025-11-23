@@ -15,7 +15,6 @@ object Essentials {
   // instructions vs expressions
   val theUnit = println("Hello, Scala") // Unit = "void" in other languages
 
-
   // OOP
   class Animal
 
@@ -58,12 +57,11 @@ object Essentials {
     c <- List('a', 'b', 'c')
   } yield (n, c) // equivalent expression
 
-
   // options and try
-  val anOption: Option[Int] = Option(/*something that might null*/ 3) // Some(3)
+  val anOption: Option[Int] = Option( /*something that might null*/ 3) // Some(3)
   val doubleOption: Option[Int] = anOption.map(_ * 2)
 
-  val anAttempt = Try(/*Something then might throw */ 42) // Success(42)
+  val anAttempt = Try( /*Something then might throw */ 42) // Success(42)
   val aModifiedAttempt: Try[Int] = anAttempt.map(_ + 10)
 
   // pattern matching
@@ -76,7 +74,7 @@ object Essentials {
 
   anOption match {
     case Some(value) => s"the option is not empty: $value"
-    case None => "the option is empty"
+    case None        => "the option is empty"
   }
 
   // Futures
@@ -86,15 +84,15 @@ object Essentials {
     42
   }
   aFuture.onComplete {
-    case Success(value) => println(s"The async meaning of life is $value")
+    case Success(value)     => println(s"The async meaning of life is $value")
     case Failure(exception) => println(s"Meaning of life failed: $exception")
   }
   val anotherFuture = aFuture.map(_ + 1)
 
   // partial functions
   val aPartialFunction: PartialFunction[Int, Int] = {
-    case 1 => 43
-    case 8 => 56
+    case 1   => 43
+    case 8   => 56
     case 100 => 999
   }
 
@@ -109,7 +107,5 @@ object Essentials {
     override def isSequential: Boolean = true
   }
 
-  def main(args: Array[String]): Unit = {
-
-  }
+  def main(args: Array[String]): Unit = {}
 }
