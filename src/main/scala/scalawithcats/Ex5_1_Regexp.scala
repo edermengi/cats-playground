@@ -1,6 +1,6 @@
 package scalawithcats
 
-object Ex5_Regexp extends App {
+object Ex5_1_Regexp extends App {
 
   enum Regexp {
     case Append(left: Regexp, right: Regexp)
