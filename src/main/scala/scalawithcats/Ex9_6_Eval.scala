@@ -2,18 +2,22 @@ package scalawithcats
 
 import cats.Eval
 
-import scala.util.{Failure, Success, Try}
+import scala.annotation.tailrec
 
 object Ex9_6_Eval extends App {
 
-  def foldRight[A, B](as: List[A], acc: B)(fn: (A, B) => B): Eval[B] =
+  def foldRightEval[A, B](as: List[A], acc: Eval[B])(fn: (A, Eval[B]) => Eval[B]): Eval[B] =
     as match {
       case head :: tail =>
-        foldRight(tail, acc)(fn).map(b => fn(head, b))
+        Eval.defer(fn(head, foldRightEval(tail, acc)(fn)))
       case Nil =>
-        Eval.now(acc)
+        acc
     }
 
-  println(foldRight(List(1, 2, 3, 4), 0)(_ + _).value)
+  def foldRight[A, B](as: List[A], acc: B)(fn: (A, B) => B): B =
+    foldRightEval(as, Eval.now(acc)) { (a, b) =>
+      b.map(fn(a, _))
+    }.value
 
+  println(foldRight((1 to 100000).toList, 0L)(_ + _))
 }
