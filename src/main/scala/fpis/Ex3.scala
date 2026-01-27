@@ -72,7 +72,9 @@ def product(as: List[Int]): Int = foldLeft(as, 1, _ * _)
 def sum(as: List[Int]): Int = foldLeft(as, 0, _ + _)
 
 // 3.12
-def reverse[A](as: List[A]): List[A] = ???
+def reverse[A](as: List[A]): List[A] = foldLeft(as, List.Nil, (a: A, b: List[A]) => List.Cons(a, b))
+
+//def foldRight2[A, B](as: List[A], acc: B, f: (A, B) => B): B = foldLeft(
 
 object Test extends App {
   val l1: List[Int] = List(1, 2, 3, 4, 5)
@@ -90,4 +92,5 @@ object Test extends App {
   println(foldLeft(l1, 1, _ * _))
   println(product(l1))
   println(sum(l1))
+  println(reverse(l1))
 }
