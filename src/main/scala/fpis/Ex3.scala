@@ -74,10 +74,37 @@ def sum(as: List[Int]): Int = foldLeft(as, 0, _ + _)
 // 3.12
 def reverse[A](as: List[A]): List[A] = foldLeft(as, List.Nil, (a: A, b: List[A]) => List.Cons(a, b))
 
-//def foldRight2[A, B](as: List[A], acc: B, f: (A, B) => B): B = foldLeft(
+// 3.13
+def foldRightViaFoldLeft[A, B](as: List[A], acc: B, f: (A, B) => B): B =
+  foldLeft(as, (b: B) => b, (a: A, g: (b: B) => B) => b => g(f(a, b)))(acc)
+
+// 3.14
+def append[A](l1: List[A], l2: List[A]): List[A] = foldRight(l1, l2, (a, b) => List.Cons(a, b))
+
+// 3.15
+def flatten[A](as: List[List[A]]): List[A] = foldRight(as, List.Nil, (a: List[A], b: List[A]) => append(a, b))
+
+// 3.16
+def addOne(as: List[Int]): List[Int] = foldRight(as, List.Nil, (a: Int, b: List[Int]) => List.Cons(a + 1, b))
+
+// 3.17
+def doubleToString(as: List[Double]): List[String] = map(as, _.toString)
+
+// 3.18
+def map[A, B](as: List[A], f: (A => B)): List[B] = foldRight(as, List.Nil, (a: A, b: List[B]) => List.Cons(f(a), b))
+
+// 3.19
+def filter[A](as: List[A], f: (A => Boolean)): List[A] =
+  foldRight(as, List.Nil, (a: A, b: List[A]) => if f(a) then List.Cons(a, b) else b)
+
+// 3.20
+def flatMap[A, B](as: List[A], f: A => List[B]): List[B] =
+  foldRight(as, List.Nil, (a: A, b: List[B]) => append(f(a), b))
 
 object Test extends App {
   val l1: List[Int] = List(1, 2, 3, 4, 5)
+  val l2: List[Int] = List(7, 8, 9)
+  val l3 = List(l1, l2)
 
   println(l1)
   println(tail(l1))
@@ -93,4 +120,10 @@ object Test extends App {
   println(product(l1))
   println(sum(l1))
   println(reverse(l1))
+  println(append(l1, l2))
+  println(flatten(l3))
+  println(addOne(l1))
+  println(doubleToString(List(1.0, 2.0)))
+  println(filter(l1, _ % 2 == 0))
+  println(flatMap(l1, a => List.Cons(a, List.Cons(a + 10, List.Nil))))
 }
