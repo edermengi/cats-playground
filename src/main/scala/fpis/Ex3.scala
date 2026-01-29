@@ -101,6 +101,32 @@ def filter[A](as: List[A], f: (A => Boolean)): List[A] =
 def flatMap[A, B](as: List[A], f: A => List[B]): List[B] =
   foldRight(as, List.Nil, (a: A, b: List[B]) => append(f(a), b))
 
+// 3.21
+def filterViaFlatMap[A](as: List[A], f: A => Boolean): List[A] =
+  flatMap(as, a => if f(a) then List.Cons(a, List.Nil) else List.Nil)
+
+// 3.22
+def zipSum(l1: List[Int], l2: List[Int]): List[Int] = {
+  (l1, l2) match {
+    case (List.Nil, _)                          => List.Nil
+    case (_, List.Nil)                          => List.Nil
+    case (List.Cons(h1, t1), List.Cons(h2, t2)) => List.Cons(h1 + h2, zipSum(t1, t2))
+  }
+}
+
+// 3.23
+def zipOp[A](l1: List[A], l2: List[A], f: (A, A) => A): List[A] = {
+  (l1, l2) match {
+    case (List.Nil, l2)                         => l2
+    case (l1, List.Nil)                         => l1
+    case (List.Cons(h1, t1), List.Cons(h2, t2)) => List.Cons(f(h1, h2), zipOp(t1, t2, f))
+  }
+}
+
+// 3.24
+def hasSub[A](sup: List[A], sub: List[A]): Boolean = ???
+
+
 object Test extends App {
   val l1: List[Int] = List(1, 2, 3, 4, 5)
   val l2: List[Int] = List(7, 8, 9)
@@ -125,5 +151,8 @@ object Test extends App {
   println(addOne(l1))
   println(doubleToString(List(1.0, 2.0)))
   println(filter(l1, _ % 2 == 0))
+  println(filterViaFlatMap(l1, _ % 2 == 0))
   println(flatMap(l1, a => List.Cons(a, List.Cons(a + 10, List.Nil))))
+  println(zipSum(l1, l2))
+  println(zipOp(l1, l2, _ * _))
 }
