@@ -1,5 +1,7 @@
 package fpis
 
+import fpis.Tree.{Branch, Leaf}
+
 import scala.annotation.tailrec
 
 enum List[+A] {
@@ -140,6 +142,55 @@ def hasSub[A](sup: List[A], sub: List[A]): Boolean = {
   }
 }
 
+enum Tree[+A] {
+  case Leaf(value: A)
+  case Branch(left: Tree[A], right: Tree[A])
+}
+
+object Tree:
+  extension [A](tree: Tree[A])
+    def asOutlinedString: String =
+      def loop(t: Tree[A], indent: String): String = t match
+        case Leaf(value)  => s"${indent}Leaf($value)"
+        case Branch(l, r) =>
+          loop(l, indent + "  ") + "\n" +
+          loop(r, indent + "  ")
+      loop(tree, "")
+
+extension [A](t: Tree[A])
+  def size: Int = t match {
+    case Tree.Leaf(_)      => 1
+    case Tree.Branch(l, r) => l.size + r.size
+  }
+
+// 3.25
+extension (t: Tree[Int])
+  def max: Int = t match {
+    case Tree.Leaf(value)  => value
+    case Tree.Branch(l, r) => math.max(l.max, r.max)
+  }
+
+// 3.26
+extension (t: Tree[Int])
+  def maxPath: Int = t match {
+    case Tree.Leaf(value)  => 0
+    case Tree.Branch(l, r) => 1 + math.max(l.maxPath, r.maxPath)
+  }
+
+// 3.27
+
+extension [A, B](t: Tree[A])
+  def map(f: A => B): Tree[B] = t match {
+    case Tree.Leaf(value)  => Leaf(f(value))
+    case Tree.Branch(l, r) => Branch(l.map(f), r.map(f))
+  }
+
+extension [A, B](t: Tree[A])
+  def fold(acc: A => B, f: (A, B) => B): B = t match {
+    case Tree.Leaf(value)  => acc(value)
+    case Tree.Branch(l, r) => l.map(f), r.map(f))
+  }
+
 object Test extends App {
   val l1: List[Int] = List(1, 2, 3, 4, 5)
   val l2: List[Int] = List(7, 8, 9)
@@ -171,4 +222,13 @@ object Test extends App {
   println(isPrefix(l1, List(1, 2, 3)))
   println(hasSub(l1, List(3, 4)))
   println(hasSub(l1, List(3, 5)))
+
+  val t1 = Branch(Leaf(1), Branch(Branch(Leaf(2), Leaf(5)), Leaf(3)))
+
+  println(t1.asOutlinedString)
+  println(t1.size)
+  println(t1.max)
+  println("maxPath: " + t1.maxPath)
+  println(t1.map(_ * 10))
+
 }
