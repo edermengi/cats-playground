@@ -124,8 +124,21 @@ def zipOp[A](l1: List[A], l2: List[A], f: (A, A) => A): List[A] = {
 }
 
 // 3.24
-def hasSub[A](sup: List[A], sub: List[A]): Boolean = ???
+@tailrec
+def isPrefix[A](l: List[A], prefix: List[A]): Boolean =
+  (l, prefix) match {
+    case (List.Cons(hl, tl), List.Cons(hp, tp)) => if hl == hp then isPrefix(tl, tp) else false
+    case (_, List.Nil)                          => true
+    case (List.Nil, _)                          => false
+  }
 
+@tailrec
+def hasSub[A](sup: List[A], sub: List[A]): Boolean = {
+  sup match {
+    case List.Nil        => false
+    case List.Cons(_, t) => if isPrefix(sup, sub) then true else hasSub(t, sub)
+  }
+}
 
 object Test extends App {
   val l1: List[Int] = List(1, 2, 3, 4, 5)
@@ -155,4 +168,7 @@ object Test extends App {
   println(flatMap(l1, a => List.Cons(a, List.Cons(a + 10, List.Nil))))
   println(zipSum(l1, l2))
   println(zipOp(l1, l2, _ * _))
+  println(isPrefix(l1, List(1, 2, 3)))
+  println(hasSub(l1, List(3, 4)))
+  println(hasSub(l1, List(3, 5)))
 }
