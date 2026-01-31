@@ -186,10 +186,11 @@ extension [A, B](t: Tree[A])
   }
 
 extension [A, B](t: Tree[A])
-  def fold(acc: A => B, f: (A, B) => B): B = t match {
+  def fold(acc: A => B, f: (B, B) => B): B = t match {
     case Tree.Leaf(value)  => acc(value)
-    case Tree.Branch(l, r) => l.map(f), r.map(f))
+    case Tree.Branch(l, r) => f(l.fold(acc, f), r.fold(acc, f))
   }
+
 
 object Test extends App {
   val l1: List[Int] = List(1, 2, 3, 4, 5)
@@ -230,5 +231,6 @@ object Test extends App {
   println(t1.max)
   println("maxPath: " + t1.maxPath)
   println(t1.map(_ * 10))
+  println(t1.fold(_, (l,r) => ))
 
 }
