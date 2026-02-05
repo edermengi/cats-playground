@@ -28,11 +28,21 @@ object Ch4 extends App {
 
   def variance(xs: Seq[Double]): Opt[Double] = mean(xs).flatMap(m => mean(xs.map(x => math.pow(x - m, 2))))
 
+  // 4.3
+  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+    for {
+      aV <- a
+      bV <- b
+    } yield f(aV, bV)
+
   println(So(0).map(_ + 1))
   println(No.getOrElse(2))
   println(So(3).getOrElse(30))
   println(So(4).filter(_ == 4))
   println(So(5).flatMap(a => So(a + "+")))
   println(variance(Seq(1, 2, 3, 4, 5, 10)))
+
+  println(map2(Some(1), Some(2))(_ + _))
+  println(map2(Some(1), Option.empty[Int])(_ + _))
 
 }
