@@ -1,6 +1,8 @@
 package fpis
 
 import fpis.Ch4.Opt.{No, So}
+import scala.List
+import scala.Nil
 
 object Ch4 extends App {
 
@@ -34,6 +36,10 @@ object Ch4 extends App {
       aV <- a
       bV <- b
     } yield f(aV, bV)
+
+  // 4.4
+  def sequence[A](as: List[Option[A]]): Option[List[A]] =
+    as.foldRight(Some(Nil))((a: Option[A], b: Option[List[A]]) => map2(a, b)(_ :: _))
 
   println(So(0).map(_ + 1))
   println(No.getOrElse(2))
