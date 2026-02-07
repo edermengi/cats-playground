@@ -41,6 +41,13 @@ object Ch4 extends App {
   def sequence[A](as: List[Option[A]]): Option[List[A]] =
     as.foldRight(Some(Nil))((a: Option[A], b: Option[List[A]]) => map2(a, b)(_ :: _))
 
+  // 4.5
+  def traverse[A, B](as: List[A])(f: A => Option[B]): Option[List[B]] =
+    as.foldRight(Some(Nil))((a: A, b: Option[List[B]]) => map2(f(a), b)(_ :: _))
+
+  def sequence2[A](as: List[Option[A]]): Option[List[A]] =
+    traverse(as)(a => a)
+
   println(So(0).map(_ + 1))
   println(No.getOrElse(2))
   println(So(3).getOrElse(30))
@@ -50,5 +57,10 @@ object Ch4 extends App {
 
   println(map2(Some(1), Some(2))(_ + _))
   println(map2(Some(1), Option.empty[Int])(_ + _))
-
+  println("traverse: " + traverse(List("1", "2", "3"))(_.toIntOption))
+  println("traverse: " + traverse(List("1", "2", "a"))(_.toIntOption))
+  println("sequence: " + sequence(List(Some(1), Some(2))))
+  println("sequence: " + sequence(List(Some(1), None)))
+  println("sequence2: " + sequence2(List(Some(1), Some(2))))
+  println("sequence2: " + sequence2(List(Some(1), None)))
 }
