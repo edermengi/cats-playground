@@ -63,4 +63,36 @@ object Ch4 extends App {
   println("sequence: " + sequence(List(Some(1), None)))
   println("sequence2: " + sequence2(List(Some(1), Some(2))))
   println("sequence2: " + sequence2(List(Some(1), None)))
+
+  enum Either[+E, +A]:
+    case Left(value: E)
+    case Right(value: A)
+
+    def map[B](f: A => B): Either[E, B] = this match {
+      case Right(a) => Right(f(a))
+      case Left(e)  => Left(e)
+    }
+
+    def flatMap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B] = this match {
+      case Right(a) => f(a)
+      case Left(e)  => Left(e)
+    }
+
+    def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B] = this match {
+      case Left(_) => b
+      case _       => this
+    }
+
+    def map2[EE >: E, B, C](that: Either[EE, B])(f: (A, B) => C): Either[EE, C] = (this, that) match {
+      case (Right(a), Right(b)) => Right(f(a, b))
+      case (Left(ea), _)        => Left(ea)
+      case (_, Left(eb))        => Left(eb)
+    }
+
+  import Either.*
+
+  println(Left("error").orElse(Right("Not error")))
+  println(Right(1).map(_ + 10))
+  println(Right(1).map2(Right(3))(_ + _))
+
 }
