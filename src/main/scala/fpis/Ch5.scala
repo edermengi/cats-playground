@@ -1,6 +1,8 @@
 package fpis
 
 import fpis.Ch5.LazyList.{cons, empty}
+import fpis.Ch5.LazyList.Cons
+import fpis.Ch5.LazyList.Empty
 
 import scala.List
 import scala.annotation.tailrec
@@ -30,6 +32,26 @@ object Ch5 extends App {
       case _                   => this
     }
 
+    // 5,3
+    def takeWhile(f: A => Boolean): LazyList[A] = this match {
+      case Cons(h, t) if f(h()) => cons(h(), t().takeWhile(f))
+      case _                    => empty
+    }
+
+    def foldRight[B](acc: => B)(f: (A, => B) => B): B = this match {
+      case Empty      => acc
+      case Cons(h, t) => f(h(), t().foldRight(acc)(f))
+    }
+
+    def exists(p: A => Boolean): Boolean = foldRight(false)((a, acc) => p(a) || acc)
+
+    // 5.4
+    def forAll(p: A => Boolean): Boolean = foldRight(true)((a, acc) => p(a) && acc)
+
+    // 5.5
+    def takeWhileViaFoldRight(p: A => Boolean): LazyList[A] =
+      foldRight[LazyList[A]](empty)((a, acc) => if p(a) then cons(a, acc) else acc)
+
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
       lazy val head = hd
@@ -49,5 +71,11 @@ object Ch5 extends App {
   println(LazyList(1, 2, 3).take(2).toList)
   println(LazyList(1).take(1).toList)
   println(LazyList(1, 2, 3).drop(1).toList)
+  println(LazyList(1, 2, 3).foldRight(0)(_ + _))
+  println(LazyList(1, 2, 3).foldRight("")(_ + _))
+  println(LazyList(1, 2, 3).takeWhile(_ < 3).toList)
+  println(LazyList(1, 2, 3).exists(_ == 31))
+  println(LazyList(1, 2, 3).forAll(_ > 1))
+  println(LazyList(1, 2, 3).takeWhileViaFoldRight(_ < 3).toList)
 
 }
