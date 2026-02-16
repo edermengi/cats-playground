@@ -55,7 +55,16 @@ object Ch5 extends App {
     // 5.6
     def headOption: Option[A] = foldRight[Option[A]](None)((a, b) => Some(a))
 
-    //
+    // 5.7
+    def map[B](f: A => B): LazyList[B] = foldRight[LazyList[B]](empty)((a, b) => cons(f(a), b))
+
+    def filter(p: A => Boolean): LazyList[A] =
+      foldRight[LazyList[A]](empty)((a, b) => if p(a) then cons(a, b) else b)
+
+    def append[B >: A](other: LazyList[B]): LazyList[B] = foldRight(other)((a, b) => cons(a, b))
+
+    def flatMap[B](f: (a: A) => LazyList[B]): LazyList[B] =
+      foldRight[LazyList[B]](empty)((a, b) => f(a).append(b))
 
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
@@ -85,5 +94,9 @@ object Ch5 extends App {
   // 5.6
   println(LazyList(1, 2, 3).headOption)
   println(LazyList().headOption)
-
+  // 5.7
+  println(LazyList(1, 2, 3).map(_ * 10).toList)
+  println(LazyList(1, 2, 3).filter(_ % 2 == 1).toList)
+  println(LazyList(1, 2, 3).append(LazyList(4, 5)).toList)
+  println(LazyList(1, 2, 3).flatMap(x => LazyList(x, x + 10)).toList)
 }
