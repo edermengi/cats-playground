@@ -52,6 +52,11 @@ object Ch5 extends App {
     def takeWhileViaFoldRight(p: A => Boolean): LazyList[A] =
       foldRight[LazyList[A]](empty)((a, acc) => if p(a) then cons(a, acc) else acc)
 
+    // 5.6
+    def headOption: Option[A] = foldRight[Option[A]](None)((a, b) => Some(a))
+
+    //
+
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
       lazy val head = hd
@@ -77,5 +82,8 @@ object Ch5 extends App {
   println(LazyList(1, 2, 3).exists(_ == 31))
   println(LazyList(1, 2, 3).forAll(_ > 1))
   println(LazyList(1, 2, 3).takeWhileViaFoldRight(_ < 3).toList)
+  // 5.6
+  println(LazyList(1, 2, 3).headOption)
+  println(LazyList().headOption)
 
 }
