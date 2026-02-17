@@ -1,11 +1,8 @@
 package fpis
 
-import fpis.Ch5.LazyList.{cons, empty}
-import fpis.Ch5.LazyList.Cons
-import fpis.Ch5.LazyList.Empty
+import fpis.Ch5.LazyList.{Cons, cons, empty}
 
 import scala.List
-import scala.annotation.tailrec
 
 object Ch5 extends App {
 
@@ -50,7 +47,7 @@ object Ch5 extends App {
 
     // 5.5
     def takeWhileViaFoldRight(p: A => Boolean): LazyList[A] =
-      foldRight[LazyList[A]](empty)((a, acc) => if p(a) then cons(a, acc) else acc)
+      foldRight[LazyList[A]](empty)((a, acc) => if p(a) then cons(a, acc) else empty)
 
     // 5.6
     def headOption: Option[A] = foldRight[Option[A]](None)((a, b) => Some(a))
@@ -65,6 +62,26 @@ object Ch5 extends App {
 
     def flatMap[B](f: (a: A) => LazyList[B]): LazyList[B] =
       foldRight[LazyList[B]](empty)((a, b) => f(a).append(b))
+
+    // 5.13
+    def mapViaUnfold[B](f: A => B): LazyList[B] = unfold(this):
+      case Cons(h, t) => Some(f(h()), t())
+      case Empty      => None
+
+    def takeViaUnfold(n: Int): LazyList[A] = unfold((this, n)):
+      case (Cons(h, t), 1)          => Some(h(), (empty, 0))
+      case (Cons(h, t), n) if n > 0 => Some(h(), (t(), n - 1))
+      case _                        => None
+
+    def takeWhileViaUnfold(f: A => Boolean): LazyList[A] = unfold(this):
+      case Cons(h, t) if f(h()) => Some(h(), t())
+      case _                    => None
+
+    def zipAll[B](that: LazyList[B]): LazyList[(Option[A], Option[B])] = unfold((this, that)):
+      case (Cons(h, t), Empty)          => Some(Some(h()) -> None, t() -> empty)
+      case (Empty, Cons(h, t))          => Some((None, Some(h())), (empty, t()))
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(Some(h1()) -> Some(h2()), t1() -> t2())
+      case _                            => None
 
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
@@ -141,6 +158,6 @@ object Ch5 extends App {
   println(fromViaUnfold(10).take(10).toList)
   println(continuallyViaFold(9).take(10).toList)
   // 5.13
-
+  println(LazyList(1, 2, 3).zipAll(LazyList(4, 5, 6, 7)).toList)
 
 }
