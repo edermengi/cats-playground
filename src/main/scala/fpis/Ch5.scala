@@ -79,6 +79,34 @@ object Ch5 extends App {
       else cons(as.head, apply(as.tail*))
     }
 
+  // 5.8
+  def continually[A](a: A): LazyList[A] =
+    lazy val single = cons(a, continually(a))
+    single
+
+  // 5.9
+  def from(n: Int): LazyList[Int] =
+    lazy val inc = cons(n, from(n + 1))
+    inc
+
+  // 5.10
+  def fibs: LazyList[Int] = {
+    def go(cur: Int, next: Int): LazyList[Int] =
+      cons(cur, go(next, cur + next))
+    go(0, 1)
+  }
+
+  // 5.11
+  def unfold[A, S](state: S)(f: S => Option[(A, S)]): LazyList[A] = f(state) match {
+    case None         => empty
+    case Some((a, s)) => cons(a, unfold(s)(f))
+  }
+
+  // 5.12
+  def fibsViaUnfold: LazyList[Int] = unfold((0, 1))((cur, next) => Some((cur, (next, cur + next))))
+  def fromViaUnfold(n: Int): LazyList[Int] = unfold(n)(x => Some())
+
+
   // 5.1
   println(LazyList(1, 2, 3).toList)
   // 5.2
@@ -99,4 +127,17 @@ object Ch5 extends App {
   println(LazyList(1, 2, 3).filter(_ % 2 == 1).toList)
   println(LazyList(1, 2, 3).append(LazyList(4, 5)).toList)
   println(LazyList(1, 2, 3).flatMap(x => LazyList(x, x + 10)).toList)
+  // 5.8
+  println(continually(1).take(4).toList)
+  // 5.9
+  println(from(101).take(6).toList)
+  // 5.10
+  println(fibs.take(10).toList)
+  // 5.11
+  println(unfold(0)(s => Some((s, s + 2))).take(10).toList)
+  // 5.12
+  println(unfold((0, 1))((cur, next) => Some((cur, (next, cur + next)))).take(10).toList)
+  println(fibsViaUnfold.take(10).toList)
+  // 5.13
+
 }
