@@ -104,8 +104,8 @@ object Ch5 extends App {
 
   // 5.12
   def fibsViaUnfold: LazyList[Int] = unfold((0, 1))((cur, next) => Some((cur, (next, cur + next))))
-  def fromViaUnfold(n: Int): LazyList[Int] = unfold(n)(x => Some())
-
+  def fromViaUnfold(n: Int): LazyList[Int] = unfold(n)(x => Some((x, x + 1)))
+  def continuallyViaFold[A](a: A): LazyList[A] = unfold(a)(x => Some((x, x)))
 
   // 5.1
   println(LazyList(1, 2, 3).toList)
@@ -138,6 +138,8 @@ object Ch5 extends App {
   // 5.12
   println(unfold((0, 1))((cur, next) => Some((cur, (next, cur + next)))).take(10).toList)
   println(fibsViaUnfold.take(10).toList)
+  println(fromViaUnfold(10).take(10).toList)
+  println(continuallyViaFold(9).take(10).toList)
   // 5.13
 
 }
