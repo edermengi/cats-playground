@@ -86,6 +86,13 @@ object Ch5 extends App {
     def startsWith[B >: A](prefix: LazyList[B]): Boolean =
       this.zipAll(prefix).takeWhile(_(1).isDefined).forAll((a1, a2) => a1 == a2)
 
+    // 5.15
+    def tails: LazyList[LazyList[A]] =
+      unfold(this):
+        case Cons(h, t) => Some((cons(h(), t()), t()))
+        case Empty      => None
+      .append(LazyList())
+
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
       lazy val head = hd
@@ -165,5 +172,7 @@ object Ch5 extends App {
   // 5.14
   println(LazyList(1, 2, 3).startsWith(LazyList(1, 2)))
   println(LazyList(1, 2, 3).startsWith(LazyList(1, 3)))
+  // 5.15
+  println(LazyList(1, 2, 3).tails.map(_.toList).toList)
 
 }
