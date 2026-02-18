@@ -83,6 +83,9 @@ object Ch5 extends App {
       case (Cons(h1, t1), Cons(h2, t2)) => Some(Some(h1()) -> Some(h2()), t1() -> t2())
       case _                            => None
 
+    def startsWith[B >: A](prefix: LazyList[B]): Boolean =
+      this.zipAll(prefix).takeWhile(_(1).isDefined).forAll((a1, a2) => a1 == a2)
+
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
       lazy val head = hd
@@ -159,5 +162,8 @@ object Ch5 extends App {
   println(continuallyViaFold(9).take(10).toList)
   // 5.13
   println(LazyList(1, 2, 3).zipAll(LazyList(4, 5, 6, 7)).toList)
+  // 5.14
+  println(LazyList(1, 2, 3).startsWith(LazyList(1, 2)))
+  println(LazyList(1, 2, 3).startsWith(LazyList(1, 3)))
 
 }
