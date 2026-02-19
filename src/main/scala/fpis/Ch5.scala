@@ -93,6 +93,17 @@ object Ch5 extends App {
         case Empty      => None
       .append(LazyList())
 
+    def hasSubsequence[B >: A](l: LazyList[B]): Boolean =
+      tails.exists(_.startsWith(l))
+
+    // 5.16
+    def scanRight[B](acc: => B)(f: (A, => B) => B): LazyList[B] =
+      foldRight(acc -> LazyList(acc)): (a, b0) =>
+        lazy val b1 = b0
+        val b2 = f(a, b1(0))
+        (b2, cons(b2, b1(1)))
+      .apply(1)
+
   object LazyList:
     def cons[A](hd: => A, tl: => LazyList[A]): LazyList[A] = {
       lazy val head = hd
@@ -174,5 +185,6 @@ object Ch5 extends App {
   println(LazyList(1, 2, 3).startsWith(LazyList(1, 3)))
   // 5.15
   println(LazyList(1, 2, 3).tails.map(_.toList).toList)
+  println(LazyList(1, 2, 3).hasSubsequence(LazyList(2, 3)))
 
 }
