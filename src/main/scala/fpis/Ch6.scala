@@ -27,10 +27,7 @@ object Ch6 extends App {
   }
 
   // 6.2
-  def double(rng: RNG): (Double, RNG) = {
-    val (n, r) = nonNegativeInt(rng)
-    (n / (Int.MaxValue.toDouble + 1), r)
-  }
+  def double: Rand[Double] = map(nonNegativeInt)(n => n / (Int.MaxValue.toDouble + 1))
 
   // 6.3
   def intDouble(rng: RNG): ((Int, Double), RNG) = {
@@ -63,6 +60,16 @@ object Ch6 extends App {
     }
     ints0(count, rng, Nil)
   }
+
+  // 6.5
+  private type Rand[+A] = RNG => (A, RNG)
+
+  def unit[A](a: A): Rand[A] = rng => (a, rng)
+
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+    rng =>
+      val (a, r) = s(rng)
+      (f(a), r)
 
   // 6.1
   val r = SimpleRNG(30)
