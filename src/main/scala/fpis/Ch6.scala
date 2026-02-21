@@ -95,6 +95,20 @@ object Ch6 extends App {
   def sequenceViaFoldAndMap2[A](rs: List[Rand[A]]): Rand[List[A]] =
     rs.foldRight(unit(Nil: List[A]))((r, acc) => map2(r, acc)(_ :: _))
 
+  // 6.8
+  def flatMap[A, B](r: Rand[A])(f: A => Rand[B]): Rand[B] = rng =>
+    val (a, ra) = r(rng)
+    val rb = f(a)
+    rb(ra)
+
+  def nonNegativeLessThan(n: Int): Rand[Int] = flatMap(nonNegativeInt): i =>
+    val mod = i % n
+    if i + (n - 1) - mod >= 0
+    then unit(mod)
+    else nonNegativeLessThan(n)
+
+  // 6.9
+    
   // 6.1
   val r = SimpleRNG(30)
   val l: LazyList[Int] = LazyList.unfold[Int, RNG](r)(rng => Some(nonNegativeInt(rng)))
@@ -126,4 +140,8 @@ object Ch6 extends App {
   println(sequence(List.fill(5)(nonNegativeInt))(r))
   println(sequenceViaFold(List.fill(5)(nonNegativeInt))(r))
   println(sequenceViaFoldAndMap2(List.fill(5)(nonNegativeInt))(r))
+
+  // 6.8
+  println(sequenceViaFoldAndMap2(List.fill(5)(nonNegativeLessThan(100)))(r))
+
 }
