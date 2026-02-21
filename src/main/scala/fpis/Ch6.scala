@@ -1,8 +1,7 @@
 package fpis
 
+import scala.{LazyList, List}
 import scala.annotation.tailrec
-import scala.List
-import scala.LazyList
 
 object Ch6 extends App {
 
@@ -108,9 +107,16 @@ object Ch6 extends App {
     else nonNegativeLessThan(n)
 
   // 6.9
-    
+  def mapViaFlatMap[A, B](s: Rand[A])(f: A => B): Rand[B] =
+    flatMap(s)(a => unit(f(a)))
+
+  def map2ViaFlatMap[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    flatMap(ra): a =>
+      flatMap(rb): b =>
+        unit(f(a, b))
+
   // 6.1
-  val r = SimpleRNG(30)
+  val r = SimpleRNG(5)
   val l: LazyList[Int] = LazyList.unfold[Int, RNG](r)(rng => Some(nonNegativeInt(rng)))
   println(l.take(10).toList)
 
@@ -142,6 +148,10 @@ object Ch6 extends App {
   println(sequenceViaFoldAndMap2(List.fill(5)(nonNegativeInt))(r))
 
   // 6.8
-  println(sequenceViaFoldAndMap2(List.fill(5)(nonNegativeLessThan(100)))(r))
+  println(sequenceViaFoldAndMap2(List.fill(20)(nonNegativeLessThan(6)))(r))
+
+  // 6.9
+  println(sequence(List.fill(5)(mapViaFlatMap(nonNegativeLessThan(4))(_ * 10)))(r))
+  println(sequence(List.fill(5)(map2ViaFlatMap(double, double)((a, b) => (a, b))))(r))
 
 }
