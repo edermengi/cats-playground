@@ -1,9 +1,12 @@
 package fpis
 
+import fpis.Ch7.Par.map2
+
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.TimeUnit
 
 object Ch7 extends App {
-  class ExecutorService:
+  abstract class ExecutorService:
     def submit[A](a: Callable[A]): Future[A]
 
   trait Callable[A]:
@@ -19,15 +22,51 @@ object Ch7 extends App {
   opaque type Par[A] = ExecutorService => Future[A]
 
   object Par {
-    def unit[A](a: A): Par[A] = ???
+    def unit[A](a: A): Par[A] = es => UnitFuture(a)
 
-    def fork[A](a: => Par[A]): Par[A] = ???
+    private case class UnitFuture[A](get: A) extends Future[A]:
+      def isDone = true
+      def get(timeout: Long, units: TimeUnit) = get
+      def isCancelled = false
+      def cancel(evenIfRunning: Boolean): Boolean = false
 
-    def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
+    extension [A](pa: Par[A])
+      def map2[B, C](pb: Par[B])(f: (A, B) => C): Par[C] = (es: ExecutorService) =>
+        val futureA = pa(es)
+        val futureB = pb(es)
+        UnitFuture(f(futureA.get, futureB.get))
 
-    extension [A](pa: Par[A]) def map2[B, C](pb: Par[B])(f: (A, B) => C): Par[C] = ???
+    extension [A](pa: Par[A])
+      def map2Timeouts[B, C](pb: Par[B])(f: (A, B) => C): Par[C] =
+        es =>
+          new Future[C]:
+            private val futureA = pa(es)
+            private val futureB = pb(es)
+            @volatile private var cache: Option[C] = None
 
-    extension [A](pa: Par[A]) def run(s: ExecutorService): Future[A] = pa(s)
+            def isDone: Boolean = cache.isDefined
+
+            def get: C = get(Long.MaxValue, TimeUnit.NANOSECONDS)
+
+            def get(timeout: Long, units: TimeUnit): C =
+              val timeoutNs = TimeUnit.NANOSECONDS.convert(timeout, units)
+              val started = System.nanoTime
+              val a = futureA.get(timeoutNs, TimeUnit.NANOSECONDS)
+              val elapsed = System.nanoTime - started
+              val b = futureB.get(timeoutNs - elapsed, TimeUnit.NANOSECONDS)
+              val c = f(a, b)
+              cache = Some(c)
+              c
+
+            def isCancelled: Boolean = futureA.isCancelled || futureB.isCancelled
+
+            def cancel(evenIfRunning: Boolean): Boolean =
+              futureA.cancel(evenIfRunning) || futureB.cancel(evenIfRunning)
+
+    def fork[A](a: => Par[A]): Par[A] = es =>
+      es.submit(new Callable[A] {
+        def call = a(es).get
+      })
   }
 
   def sum(ints: IndexedSeq[Int]): Par[Int] =
@@ -35,6 +74,6 @@ object Ch7 extends App {
     else
       val (l, r) = ints.splitAt(ints.size / 2)
       Par.fork(sum(l)).map2(Par.fork(sum(r)))(_ + _)
-  
+
   println("Hi")
 }
