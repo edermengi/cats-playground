@@ -1,3 +1,4 @@
+//noinspection ScalaWeakerAccess
 package fpis
 
 import fpis.Ch7.Par.map2
@@ -79,6 +80,15 @@ object Ch7 extends App {
     // 7.5
     def sequence[A](ps: List[Par[A]]): Par[List[A]] =
       ps.foldRight(unit(Nil): Par[List[A]])((pa, acc) => pa.map2(acc)(_ :: _))
+
+    def parMap[A, B](ps: List[A])(f: A => B): Par[List[B]] =
+      fork:
+        val fbs: List[Par[B]] = ps.map(asyncF(f))
+        sequence(fbs)
+
+    // 7.6
+    def parFilter[A](ps: List[A])(f: A => Boolean): Par[List[A]] =
+      parMap(ps.filter(f))(a => a)
 
   }
 
