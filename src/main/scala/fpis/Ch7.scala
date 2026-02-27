@@ -23,6 +23,7 @@ object Ch7 extends App {
 
   object Par {
     def unit[A](a: A): Par[A] = es => UnitFuture(a)
+    def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
 
     private case class UnitFuture[A](get: A) extends Future[A]:
       def isDone = true
@@ -67,6 +68,9 @@ object Ch7 extends App {
       es.submit(new Callable[A] {
         def call = a(es).get
       })
+
+    def asyncF[A, B](f: A => B): A => Par[B] =
+      a => lazyUnit(f(a))
   }
 
   def sum(ints: IndexedSeq[Int]): Par[Int] =
