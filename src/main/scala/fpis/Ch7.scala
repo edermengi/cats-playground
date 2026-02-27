@@ -1,7 +1,7 @@
 package fpis
 
 import fpis.Ch7.Par.map2
-
+import scala.List
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.TimeUnit
 
@@ -38,6 +38,10 @@ object Ch7 extends App {
         UnitFuture(f(futureA.get, futureB.get))
 
     extension [A](pa: Par[A])
+      def map[B](f: A => B): Par[B] =
+        pa.map2(unit(()))((a, _) => f(a))
+
+    extension [A](pa: Par[A])
       def map2Timeouts[B, C](pb: Par[B])(f: (A, B) => C): Par[C] =
         es =>
           new Future[C]:
@@ -71,6 +75,11 @@ object Ch7 extends App {
 
     def asyncF[A, B](f: A => B): A => Par[B] =
       a => lazyUnit(f(a))
+
+    // 7.5
+    def sequence[A](ps: List[Par[A]]): Par[List[A]] =
+      ps.foldRight(unit(Nil): Par[List[A]])((pa, acc) => pa.map2(acc)(_ :: _))
+
   }
 
   def sum(ints: IndexedSeq[Int]): Par[Int] =
