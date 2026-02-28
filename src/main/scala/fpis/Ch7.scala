@@ -88,8 +88,10 @@ object Ch7 extends App {
 
     // 7.6
     def parFilter[A](ps: List[A])(f: A => Boolean): Par[List[A]] =
-      parMap(ps.filter(f))(a => a)
-
+      fork:
+        val fbs: List[Par[List[A]]] = ps.map(asyncF(a => if f(a) then List(a) else Nil))
+        val fl: Par[List[List[A]]] = sequence(fbs)
+        fl.map(_.flatten)
   }
 
   def sum(ints: IndexedSeq[Int]): Par[Int] =
@@ -97,6 +99,12 @@ object Ch7 extends App {
     else
       val (l, r) = ints.splitAt(ints.size / 2)
       Par.fork(sum(l)).map2(Par.fork(sum(r)))(_ + _)
+
+  def max(ints: IndexedSeq[Int]): Par[Int] =
+    if ints.size <= 1 then Par.unit(ints.headOption.getOrElse(0))
+    else
+      val (l, r) = ints.splitAt(ints.size / 2)
+      Par.fork(sum(l)).map2(Par.fork(sum(r)))(Math.max)
 
   println("Hi")
 }
